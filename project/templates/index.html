@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phish Detector — Check URLs</title>
+
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- main stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="shield"></span>
+        <div>
+          <h1>Phish Detector</h1>
+          <p class="tagline">AI-assisted URL & Email phishing detection</p>
+        </div>
+      </div>
+
+      <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/mail">Check Email</a>
+        <a href="#" class="about-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <section class="hero">
+      <h2>Check any URL for Phishing Threats</h2>
+      <p class="sub">Paste a URL below and hit <strong>Analyze</strong>. Results show a clear verdict and confidence score.</p>
+
+      <form class="url-form" method="post" action="/check_url" novalidate>
+        <input required name="url" id="url" type="text" placeholder="https://example.com/login?id=123" value="{{ request.form.get('url','') if request.method=='POST' else '' }}">
+        <button type="submit" class="btn-primary">Analyze</button>
+      </form>
+
+      <!-- dynamic result area (injected by Flask) -->
+      {% if result %}
+      <div class="result-area">
+        {% set status = result.status|lower %}
+        {% if status == 'legitimate' %}
+          {% set cls = 'result-safe' %}
+          {% set icon = '✅' %}
+        {% elif status == 'suspicious' %}
+          {% set cls = 'result-warning' %}
+          {% set icon = '⚠️' %}
+        {% else %}
+          {% set cls = 'result-danger' %}
+          {% set icon = '❌' %}
+        {% endif %}
+
+        <article class="result-card {{ cls }}">
+          <div class="result-left">
+            <div class="result-title"><span class="icon">{{ icon }}</span>
+              <h3>{{ result.status }}</h3>
+            </div>
+            <p class="meta-line"><strong>URL:</strong> <span class="monospace">{{ result.url }}</span></p>
+            <p class="meta-line"><strong>Reason:</strong> {{ result.reason }}</p>
+            <p class="meta-line"><strong>Confidence:</strong> {{ result.confidence }}</p>
+          </div>
+          <div class="result-right">
+            {% if result.phishing_prob %}
+            <div class="small">Phishing probability</div>
+            <div class="big">{{ result.phishing_prob }}</div>
+            {% endif %}
+            {% if meta and meta.accuracy %}
+            <div class="model-info">Model accuracy (test): <strong>{{ meta.accuracy }}</strong></div>
+            {% endif %}
+          </div>
+        </article>
+      </div>
+      {% endif %}
+
+      <!-- Static result card examples (design-only) -->
+      <div class="examples">
+        <h4>Example Result Cards</h4>
+        <div class="cards-row">
+          <div class="example-card result-safe">
+            <div class="sample-icon">✅</div>
+            <div class="sample-text"><strong>Safe</strong><div class="sample-sub">This URL appears legitimate</div></div>
+          </div>
+
+          <div class="example-card result-warning">
+            <div class="sample-icon">⚠️</div>
+            <div class="sample-text"><strong>Suspicious</strong><div class="sample-sub">Proceed with caution</div></div>
+          </div>
+
+          <div class="example-card result-danger">
+            <div class="sample-icon">❌</div>
+            <div class="sample-text"><strong>Danger</strong><div class="sample-sub">Phishing detected — do NOT visit</div></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>© {{ (2025) }} Phish Detector — Use for guidance only.</div>
+      <div class="footer-right">Built with ML • Flask</div>
+    </div>
+  </footer>
+
+</body>
+</html>

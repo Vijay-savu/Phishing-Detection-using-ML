@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phish Detector — Email scan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="shield">📧</span>
+        <div>
+          <h1>Phish Detector</h1>
+          <p class="tagline">Analyze email content for malicious links</p>
+        </div>
+      </div>
+
+      <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/mail">Check Email</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <section class="hero small">
+      <h2>Detect Phishing in Emails</h2>
+      <p class="sub">Paste the full email text. The system will extract links and analyze each one.</p>
+
+      <form class="email-form" method="post" action="/check_mail" novalidate>
+        <textarea name="email_content" placeholder="Paste your email text here..." rows="10">{{ request.form.get('email_content','') if request.method=='POST' else '' }}</textarea>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Analyze Email</button>
+          <a href="/">Check single URL</a>
+        </div>
+      </form>
+
+      <!-- Display results if present -->
+      {% if results is not none %}
+        <div class="email-results">
+          <h4>Detected links</h4>
+          {% if results|length == 0 %}
+            <p class="muted">No links found in the email content.</p>
+          {% else %}
+            <ul class="link-list">
+              {% for r in results %}
+                {% set s = r.status|lower %}
+                {% if s == 'legitimate' %}{% set card = 'result-safe' %}{% set ic='✅' %}
+                {% elif s == 'suspicious' %}{% set card = 'result-warning' %}{% set ic='⚠️' %}
+                {% else %}{% set card = 'result-danger' %}{% set ic='❌' %}{% endif %}
+                <li class="link-item {{ card }}">
+                  <div class="li-left">
+                    <div class="li-icon">{{ ic }}</div>
+                    <div class="li-url">{{ r.url }}</div>
+                  </div>
+                  <div class="li-right">
+                    <div class="li-reason">{{ r.reason }}</div>
+                    <div class="li-conf">{{ r.confidence or 'N/A' }}</div>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>© {{ (2025) }} Phish Detector — Use for guidance only.</div>
+      <div class="footer-right">Built with ML • Flask</div>
+    </div>
+  </footer>
+</body>
+</html>

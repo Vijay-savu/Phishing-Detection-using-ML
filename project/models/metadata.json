@@ -1,0 +1,6 @@
+{
+  "accuracy": 88.23,
+  "n_features": 80,
+  "n_samples": 11430,
+  "label_col": "phish_hints"
+}
