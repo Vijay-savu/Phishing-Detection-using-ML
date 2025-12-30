@@ -15,9 +15,9 @@ if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
     try:
         model = joblib.load(MODEL_PATH)
         scaler = joblib.load(SCALER_PATH)
-        print("✅ Loaded ML model and scaler.")
+        print(" Loaded ML model and scaler.")
     except Exception as e:
-        print("❌ Error loading model/scaler:", e)
+        print(" Error loading model/scaler:", e)
 else:
     print("⚠ Models not found. Run `python train.py` to generate them.")
 
